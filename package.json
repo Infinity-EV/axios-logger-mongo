@@ -1,0 +1,54 @@
+{
+  "name": "@yoctol/axios-logger-mongo",
+  "description": "Mongo logger interceptor for Axios.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yoctol/axios-logger-mongo"
+  },
+  "version": "0.0.1",
+  "main": "index.js",
+  "files": ["index.js"],
+  "scripts": {
+    "test": "jest"
+  },
+  "devDependencies": {
+    "axios": "^0.18.0",
+    "eslint": "^4.19.1",
+    "eslint-config-prettier": "^2.9.0",
+    "eslint-config-yoctol-base": "^0.15.1",
+    "eslint-plugin-import": "^2.11.0",
+    "eslint-plugin-prettier": "^2.6.0",
+    "husky": "^0.14.3",
+    "jest": "^22.4.3",
+    "lint-staged": "^7.1.0",
+    "nock": "^9.2.6",
+    "prettier": "^1.12.1",
+    "prettier-package-json": "^1.6.0"
+  },
+  "keywords": [
+    "axios",
+    "request",
+    "response",
+    "log",
+    "logger",
+    "mongo",
+    "interceptor"
+  ],
+  "jest": {
+    "testEnvironment": "node",
+    "testPathIgnorePatterns": ["node_modules/"]
+  },
+  "lint-staged": {
+    "*.js": ["eslint --fix", "git add"],
+    "package.json": [
+      "prettier-package-json --write",
+      "prettier package.json --write",
+      "git add"
+    ],
+    ".babelrc": ["prettier .babelrc --write", "git add"]
+  },
+  "dependencies": {
+    "monk": "^6.0.6"
+  }
+}
