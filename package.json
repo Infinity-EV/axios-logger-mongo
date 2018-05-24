@@ -6,9 +6,11 @@
     "type": "git",
     "url": "https://github.com/yoctol/axios-logger-mongo"
   },
-  "version": "0.0.1",
+  "version": "0.0.2",
   "main": "index.js",
-  "files": ["index.js"],
+  "files": [
+    "index.js"
+  ],
   "scripts": {
     "test": "jest"
   },
@@ -37,16 +39,24 @@
   ],
   "jest": {
     "testEnvironment": "node",
-    "testPathIgnorePatterns": ["node_modules/"]
+    "testPathIgnorePatterns": [
+      "node_modules/"
+    ]
   },
   "lint-staged": {
-    "*.js": ["eslint --fix", "git add"],
+    "*.js": [
+      "eslint --fix",
+      "git add"
+    ],
     "package.json": [
       "prettier-package-json --write",
       "prettier package.json --write",
       "git add"
     ],
-    ".babelrc": ["prettier .babelrc --write", "git add"]
+    ".babelrc": [
+      "prettier .babelrc --write",
+      "git add"
+    ]
   },
   "dependencies": {
     "monk": "^6.0.6"
