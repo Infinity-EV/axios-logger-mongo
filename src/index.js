@@ -2,6 +2,7 @@ const { URL } = require('url');
 const qs = require('querystring');
 
 const monk = require('monk');
+const mapKeys = require('lodash/mapKeys');
 
 const NAMESPACE = 'axios-logger-mongo';
 
@@ -27,7 +28,7 @@ const logResponse = collection => axiosResponse => {
     path: axiosRequest.path,
     headers: {
       host: url.host,
-      ...axiosConfig.headers,
+      ...mapKeys(axiosConfig.headers, (val, key) => key.toLowerCase()),
     },
     query: {
       ...qs.parse(url.search.replace('?', '')),
@@ -69,7 +70,7 @@ const logError = collection => axiosError => {
     path: axiosRequest.path || url.pathname,
     headers: {
       host: url.host,
-      ...axiosConfig.headers,
+      ...mapKeys(axiosConfig.headers, (val, key) => key.toLowerCase()),
     },
     query: {
       ...qs.parse(url.search.replace('?', '')),

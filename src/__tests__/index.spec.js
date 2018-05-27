@@ -46,8 +46,8 @@ it('should support axios', async () => {
     method: 'GET',
     path: '/path',
     headers: {
-      Accept: 'application/json, text/plain, */*',
-      'User-Agent': 'axios/0.18.0',
+      accept: 'application/json, text/plain, */*',
+      'user-agent': 'axios/0.18.0',
       host: 'www.example.com',
     },
     query: {},
@@ -88,8 +88,8 @@ it('should work on error', async () => {
     method: 'GET',
     path: '/path',
     headers: {
-      Accept: 'application/json, text/plain, */*',
-      'User-Agent': 'axios/0.18.0',
+      accept: 'application/json, text/plain, */*',
+      'user-agent': 'axios/0.18.0',
       host: 'www.example.com',
     },
     query: {},
@@ -121,8 +121,8 @@ it('should support axios.create', async () => {
     method: 'GET',
     path: '/path',
     headers: {
-      Accept: 'application/json, text/plain, */*',
-      'User-Agent': 'axios/0.18.0',
+      accept: 'application/json, text/plain, */*',
+      'user-agent': 'axios/0.18.0',
       host: 'www.example.com',
     },
     query: {},
