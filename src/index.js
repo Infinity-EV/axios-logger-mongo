@@ -14,13 +14,7 @@ const logRequest = () => axiosConfig => {
   return axiosConfig;
 };
 
-const logResponse = collection => axiosResponse => {
-  const axiosConfig = axiosResponse.config;
-  const axiosRequest = axiosResponse.request;
-
-  const { requestTimestamp } = axiosConfig[NAMESPACE];
-  const responseTimestamp = Date.now();
-
+function createRequestObject({ axiosConfig, axiosRequest }) {
   const url = new URL(axiosConfig.url);
 
   const requestHeaders = {
@@ -43,7 +37,7 @@ const logResponse = collection => axiosResponse => {
     requestBody = axiosConfig.data || null;
   }
 
-  const request = {
+  return {
     method: axiosRequest.method || axiosConfig.method.toUpperCase(),
     path: axiosRequest.path || url.pathname,
     headers: requestHeaders,
@@ -53,13 +47,26 @@ const logResponse = collection => axiosResponse => {
     },
     body: requestBody,
   };
+}
 
-  const response = {
+function createResponseObject({ axiosResponse }) {
+  return {
     status: axiosResponse.status,
     statusText: axiosResponse.statusText,
     headers: axiosResponse.headers,
     body: axiosResponse.data || null,
   };
+}
+
+const logResponse = collection => axiosResponse => {
+  const axiosConfig = axiosResponse.config;
+  const axiosRequest = axiosResponse.request;
+
+  const { requestTimestamp } = axiosConfig[NAMESPACE];
+  const responseTimestamp = Date.now();
+
+  const request = createRequestObject({ axiosConfig, axiosRequest });
+  const response = createResponseObject({ axiosResponse });
 
   const error = null;
 
@@ -80,38 +87,7 @@ const logError = collection => axiosError => {
   const { requestTimestamp } = axiosConfig[NAMESPACE];
   const errorTimestamp = Date.now();
 
-  const url = new URL(axiosConfig.url);
-
-  const requestHeaders = {
-    host: url.host,
-    ...mapKeys(axiosConfig.headers, (val, key) => key.toLowerCase()),
-  };
-
-  let requestBody;
-
-  if (
-    requestHeaders['content-type'] &&
-    requestHeaders['content-type'].startsWith('application/json')
-  ) {
-    try {
-      requestBody = JSON.parse(axiosConfig.data);
-    } catch (err) {
-      requestBody = requestBody || null;
-    }
-  } else {
-    requestBody = axiosConfig.data || null;
-  }
-
-  const request = {
-    method: axiosRequest.method || axiosConfig.method.toUpperCase(),
-    path: axiosRequest.path || url.pathname,
-    headers: requestHeaders,
-    query: {
-      ...qs.parse(url.search.replace('?', '')),
-      ...axiosConfig.params,
-    },
-    body: requestBody,
-  };
+  const request = createRequestObject({ axiosConfig, axiosRequest });
 
   const response = null;
 
