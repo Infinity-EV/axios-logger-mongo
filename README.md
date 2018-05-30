@@ -1,5 +1,7 @@
 # axios-logger-mongo
 
+[![npm](https://img.shields.io/npm/v/@yoctol/axios-logger-mongo.svg)](https://www.npmjs.com/package/@yoctol/axios-logger-mongo)
+
 > Mongo logger interceptor for [Axios](https://github.com/axios/axios).
 
 ## Installation
