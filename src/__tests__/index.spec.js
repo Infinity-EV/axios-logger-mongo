@@ -141,3 +141,52 @@ it('should support axios.create', async () => {
   expect(record.error).toBeNull();
   expect(record.time).toEqual(expect.any(Number));
 });
+
+it('should parse JSON request body when content-type = application/json', async () => {
+  const { collection } = setup();
+
+  nock('https://www.example.com')
+    .post('/path')
+    .reply(200, { x: 'y' });
+
+  useMongoLogger(axios, {
+    mongoURL: 'mongodb://localhost:27017/',
+    collectionName: 'logs',
+  });
+
+  await axios.post('https://www.example.com/path', {
+    x: 1,
+    y: 2,
+  });
+
+  const record = collection.insert.mock.calls[0][0];
+
+  expect(record.request).toEqual({
+    method: 'POST',
+    path: '/path',
+    headers: {
+      accept: 'application/json, text/plain, */*',
+      'content-length': 13,
+      'content-type': 'application/json;charset=utf-8',
+      'user-agent': 'axios/0.18.0',
+      host: 'www.example.com',
+    },
+    query: {},
+    body: {
+      x: 1,
+      y: 2,
+    },
+  });
+  expect(record.response).toEqual({
+    status: 200,
+    statusText: null,
+    headers: {
+      'content-type': 'application/json',
+    },
+    body: {
+      x: 'y',
+    },
+  });
+  expect(record.error).toBeNull();
+  expect(record.time).toEqual(expect.any(Number));
+});

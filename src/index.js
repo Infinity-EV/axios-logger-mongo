@@ -14,6 +14,50 @@ const logRequest = () => axiosConfig => {
   return axiosConfig;
 };
 
+function createRequestObject({ axiosConfig, axiosRequest }) {
+  const url = new URL(axiosConfig.url);
+
+  const requestHeaders = {
+    host: url.host,
+    ...mapKeys(axiosConfig.headers, (val, key) => key.toLowerCase()),
+  };
+
+  let requestBody;
+
+  if (
+    requestHeaders['content-type'] &&
+    requestHeaders['content-type'].startsWith('application/json')
+  ) {
+    try {
+      requestBody = JSON.parse(axiosConfig.data);
+    } catch (err) {
+      requestBody = requestBody || null;
+    }
+  } else {
+    requestBody = axiosConfig.data || null;
+  }
+
+  return {
+    method: axiosRequest.method || axiosConfig.method.toUpperCase(),
+    path: axiosRequest.path || url.pathname,
+    headers: requestHeaders,
+    query: {
+      ...qs.parse(url.search.replace('?', '')),
+      ...axiosConfig.params,
+    },
+    body: requestBody,
+  };
+}
+
+function createResponseObject({ axiosResponse }) {
+  return {
+    status: axiosResponse.status,
+    statusText: axiosResponse.statusText,
+    headers: axiosResponse.headers,
+    body: axiosResponse.data || null,
+  };
+}
+
 const logResponse = collection => axiosResponse => {
   const axiosConfig = axiosResponse.config;
   const axiosRequest = axiosResponse.request;
@@ -21,28 +65,8 @@ const logResponse = collection => axiosResponse => {
   const { requestTimestamp } = axiosConfig[NAMESPACE];
   const responseTimestamp = Date.now();
 
-  const url = new URL(axiosConfig.url);
-
-  const request = {
-    method: axiosRequest.method || axiosConfig.method.toUpperCase(),
-    path: axiosRequest.path,
-    headers: {
-      host: url.host,
-      ...mapKeys(axiosConfig.headers, (val, key) => key.toLowerCase()),
-    },
-    query: {
-      ...qs.parse(url.search.replace('?', '')),
-      ...axiosConfig.params,
-    },
-    body: axiosConfig.data || null,
-  };
-
-  const response = {
-    status: axiosResponse.status,
-    statusText: axiosResponse.statusText,
-    headers: axiosResponse.headers,
-    body: axiosResponse.data || null,
-  };
+  const request = createRequestObject({ axiosConfig, axiosRequest });
+  const response = createResponseObject({ axiosResponse });
 
   const error = null;
 
@@ -63,21 +87,8 @@ const logError = collection => axiosError => {
   const { requestTimestamp } = axiosConfig[NAMESPACE];
   const errorTimestamp = Date.now();
 
-  const url = new URL(axiosConfig.url);
+  const request = createRequestObject({ axiosConfig, axiosRequest });
 
-  const request = {
-    method: axiosRequest.method || axiosConfig.method.toUpperCase(),
-    path: axiosRequest.path || url.pathname,
-    headers: {
-      host: url.host,
-      ...mapKeys(axiosConfig.headers, (val, key) => key.toLowerCase()),
-    },
-    query: {
-      ...qs.parse(url.search.replace('?', '')),
-      ...axiosConfig.params,
-    },
-    body: axiosConfig.data || null,
-  };
   const response = null;
 
   const error = axiosError.message;
