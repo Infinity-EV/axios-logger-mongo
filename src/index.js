@@ -23,18 +23,35 @@ const logResponse = collection => axiosResponse => {
 
   const url = new URL(axiosConfig.url);
 
+  const requestHeaders = {
+    host: url.host,
+    ...mapKeys(axiosConfig.headers, (val, key) => key.toLowerCase()),
+  };
+
+  let requestBody;
+
+  if (
+    requestHeaders['content-type'] &&
+    requestHeaders['content-type'].startsWith('application/json')
+  ) {
+    try {
+      requestBody = JSON.parse(axiosConfig.data);
+    } catch (err) {
+      requestBody = requestBody || null;
+    }
+  } else {
+    requestBody = axiosConfig.data || null;
+  }
+
   const request = {
     method: axiosRequest.method || axiosConfig.method.toUpperCase(),
-    path: axiosRequest.path,
-    headers: {
-      host: url.host,
-      ...mapKeys(axiosConfig.headers, (val, key) => key.toLowerCase()),
-    },
+    path: axiosRequest.path || url.pathname,
+    headers: requestHeaders,
     query: {
       ...qs.parse(url.search.replace('?', '')),
       ...axiosConfig.params,
     },
-    body: axiosConfig.data || null,
+    body: requestBody,
   };
 
   const response = {
@@ -65,19 +82,37 @@ const logError = collection => axiosError => {
 
   const url = new URL(axiosConfig.url);
 
+  const requestHeaders = {
+    host: url.host,
+    ...mapKeys(axiosConfig.headers, (val, key) => key.toLowerCase()),
+  };
+
+  let requestBody;
+
+  if (
+    requestHeaders['content-type'] &&
+    requestHeaders['content-type'].startsWith('application/json')
+  ) {
+    try {
+      requestBody = JSON.parse(axiosConfig.data);
+    } catch (err) {
+      requestBody = requestBody || null;
+    }
+  } else {
+    requestBody = axiosConfig.data || null;
+  }
+
   const request = {
     method: axiosRequest.method || axiosConfig.method.toUpperCase(),
     path: axiosRequest.path || url.pathname,
-    headers: {
-      host: url.host,
-      ...mapKeys(axiosConfig.headers, (val, key) => key.toLowerCase()),
-    },
+    headers: requestHeaders,
     query: {
       ...qs.parse(url.search.replace('?', '')),
       ...axiosConfig.params,
     },
-    body: axiosConfig.data || null,
+    body: requestBody,
   };
+
   const response = null;
 
   const error = axiosError.message;
