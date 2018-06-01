@@ -1,4 +1,3 @@
-const axios = require('axios');
 const monk = require('monk');
 const nock = require('nock');
 
@@ -6,7 +5,11 @@ const { useMongoLogger } = require('../');
 
 jest.mock('monk');
 
+let axios;
+
 function setup() {
+  axios = require('axios');
+
   const db = {
     get: jest.fn(),
   };
@@ -189,4 +192,48 @@ it('should parse JSON request body when content-type = application/json', async 
   });
   expect(record.error).toBeNull();
   expect(record.time).toEqual(expect.any(Number));
+});
+
+describe('#allInstances', () => {
+  it('should support all instances when allInstances = true', async () => {
+    const { collection } = setup();
+
+    nock('https://www.example.com')
+      .persist()
+      .get('/path')
+      .reply(200, { x: 'y' });
+
+    useMongoLogger(axios, {
+      mongoURL: 'mongodb://localhost:27017/',
+      collectionName: 'logs',
+      allInstances: true,
+    });
+
+    const axiosInstance = axios.create({ baseURL: 'https://www.example.com' });
+
+    await axios.get('https://www.example.com/path');
+    await axiosInstance.get('/path');
+
+    expect(collection.insert).toHaveBeenCalledTimes(2);
+  });
+
+  it('should not support all instances when allInstances = false', async () => {
+    const { collection } = setup();
+
+    nock('https://www.example.com')
+      .get('/path')
+      .reply(200, { x: 'y' });
+
+    useMongoLogger(axios, {
+      mongoURL: 'mongodb://localhost:27017/',
+      collectionName: 'logs',
+      allInstances: false,
+    });
+
+    const axiosInstance = axios.create({ baseURL: 'https://www.example.com' });
+
+    await axiosInstance.get('/path');
+
+    expect(collection.insert).not.toBeCalled();
+  });
 });

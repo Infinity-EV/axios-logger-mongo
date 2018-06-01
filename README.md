@@ -22,3 +22,13 @@ useMongoLogger(axios, {
   collectionName: 'logs',
 });
 ```
+
+To support all of axios instances, set option `allInstances` to `true`:
+
+```js
+useMongoLogger(axios, {
+  mongoURL: 'mongodb://localhost:27017/',
+  collectionName: 'logs',
+  allInstances: true,
+});
+```

@@ -103,7 +103,10 @@ const logError = collection => axiosError => {
   return Promise.reject(axiosError);
 };
 
-function useMongoLogger(axios, { mongoURL, collectionName }) {
+function useMongoLogger(
+  axios,
+  { mongoURL, collectionName, allInstances = false }
+) {
   const db = monk(mongoURL);
 
   const collection = db.get(collectionName);
@@ -113,6 +116,18 @@ function useMongoLogger(axios, { mongoURL, collectionName }) {
     logResponse(collection),
     logError(collection)
   );
+
+  if (allInstances && axios.create) {
+    const axiosCreate = axios.create.bind(axios);
+
+    axios.create = (...args) => {
+      const instance = axiosCreate(...args);
+
+      useMongoLogger(instance, { mongoURL, collectionName });
+
+      return instance;
+    };
+  }
 }
 
 module.exports = {
