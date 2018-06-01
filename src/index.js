@@ -117,8 +117,6 @@ function useMongoLogger(
     logError(collection)
   );
 
-  console.log({ allInstances });
-
   if (allInstances && axios.create) {
     const axiosCreate = axios.create.bind(axios);
 
