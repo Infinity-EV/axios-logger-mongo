@@ -237,3 +237,66 @@ describe('#allInstances', () => {
     expect(collection.insert).not.toBeCalled();
   });
 });
+
+describe('#transformRequestBody', () => {
+  it('should support transform request body', async () => {
+    const { collection } = setup();
+
+    nock('https://www.example.com')
+      .post('/path')
+      .reply(200, { x: 'y' });
+
+    useMongoLogger(axios, {
+      mongoURL: 'mongodb://localhost:27017/',
+      collectionName: 'logs',
+      transformRequestBody: body => ({
+        ...body,
+        b: 2,
+      }),
+    });
+
+    await axios.post('https://www.example.com/path', {
+      x: 1,
+      y: 2,
+    });
+
+    const record = collection.insert.mock.calls[0][0];
+
+    expect(record.request.body).toEqual({
+      x: 1,
+      y: 2,
+      b: 2,
+    });
+  });
+});
+
+describe('#transformResponeBody', () => {
+  it('should support transform response body', async () => {
+    const { collection } = setup();
+
+    nock('https://www.example.com')
+      .post('/path')
+      .reply(200, { x: 'y' });
+
+    useMongoLogger(axios, {
+      mongoURL: 'mongodb://localhost:27017/',
+      collectionName: 'logs',
+      transformResponseBody: body => ({
+        ...body,
+        b: 2,
+      }),
+    });
+
+    await axios.post('https://www.example.com/path', {
+      x: 1,
+      y: 2,
+    });
+
+    const record = collection.insert.mock.calls[0][0];
+
+    expect(record.response.body).toEqual({
+      x: 'y',
+      b: 2,
+    });
+  });
+});

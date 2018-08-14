@@ -14,7 +14,11 @@ const logRequest = () => axiosConfig => {
   return axiosConfig;
 };
 
-function createRequestObject({ axiosConfig, axiosRequest }) {
+function createRequestObject({
+  axiosConfig,
+  axiosRequest,
+  transformRequestBody,
+}) {
   const url = new URL(axiosConfig.url);
 
   const requestHeaders = {
@@ -37,6 +41,10 @@ function createRequestObject({ axiosConfig, axiosRequest }) {
     requestBody = axiosConfig.data || null;
   }
 
+  if (requestBody && typeof transformRequestBody === 'function') {
+    requestBody = transformRequestBody(requestBody);
+  }
+
   return {
     method: axiosRequest.method || axiosConfig.method.toUpperCase(),
     path: axiosRequest.path || url.pathname,
@@ -49,45 +57,61 @@ function createRequestObject({ axiosConfig, axiosRequest }) {
   };
 }
 
-function createResponseObject({ axiosResponse }) {
+function createResponseObject({ axiosResponse, transformResponseBody }) {
+  let body = axiosResponse.data || null;
+  if (body && typeof transformResponseBody === 'function') {
+    body = transformResponseBody(body);
+  }
   return {
     status: axiosResponse.status,
     statusText: axiosResponse.statusText,
     headers: axiosResponse.headers,
-    body: axiosResponse.data || null,
+    body,
   };
 }
 
-const logResponse = collection => axiosResponse => {
+const logResponse = (
+  collection,
+  { transformRequestBody, transformResponseBody } = {}
+) => axiosResponse => {
   const axiosConfig = axiosResponse.config;
   const axiosRequest = axiosResponse.request;
 
   const { requestTimestamp } = axiosConfig[NAMESPACE];
   const responseTimestamp = Date.now();
 
-  const request = createRequestObject({ axiosConfig, axiosRequest });
-  const response = createResponseObject({ axiosResponse });
-
-  const error = null;
+  const request = createRequestObject({
+    axiosConfig,
+    axiosRequest,
+    transformRequestBody,
+  });
+  const response = createResponseObject({
+    axiosResponse,
+    transformResponseBody,
+  });
 
   collection.insert({
     request,
     response,
-    error,
+    error: null,
     time: responseTimestamp - requestTimestamp,
   });
 
   return axiosResponse;
 };
 
-const logError = collection => axiosError => {
+const logError = (collection, { transformRequestBody } = {}) => axiosError => {
   const axiosConfig = axiosError.config;
   const axiosRequest = axiosError.request;
 
   const { requestTimestamp } = axiosConfig[NAMESPACE];
   const errorTimestamp = Date.now();
 
-  const request = createRequestObject({ axiosConfig, axiosRequest });
+  const request = createRequestObject({
+    axiosConfig,
+    axiosRequest,
+    transformRequestBody,
+  });
 
   const response = null;
 
@@ -105,7 +129,13 @@ const logError = collection => axiosError => {
 
 function useMongoLogger(
   axios,
-  { mongoURL, collectionName, allInstances = false }
+  {
+    mongoURL,
+    collectionName,
+    allInstances = false,
+    transformRequestBody,
+    transformResponseBody,
+  }
 ) {
   const db = monk(mongoURL);
 
@@ -113,8 +143,8 @@ function useMongoLogger(
 
   axios.interceptors.request.use(logRequest(collection));
   axios.interceptors.response.use(
-    logResponse(collection),
-    logError(collection)
+    logResponse(collection, { transformRequestBody, transformResponseBody }),
+    logError(collection, { transformRequestBody })
   );
 
   if (allInstances && axios.create) {
@@ -123,7 +153,12 @@ function useMongoLogger(
     axios.create = (...args) => {
       const instance = axiosCreate(...args);
 
-      useMongoLogger(instance, { mongoURL, collectionName });
+      useMongoLogger(instance, {
+        mongoURL,
+        collectionName,
+        transformRequestBody,
+        transformResponseBody,
+      });
 
       return instance;
     };

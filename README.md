@@ -12,6 +12,16 @@ Install using npm:
 npm install @yoctol/axios-logger-mongo
 ```
 
+## API Reference
+
+| Param                 | Type       |                                        |
+| --------------------- | ---------- | -------------------------------------- |
+| mongoURL              | `String`   | URL of the mongodb.                    |
+| collectionName        | `String`   | Name of the collection.                |
+| allInstances          | `Boolean`  | Support all of axios instances or not. |
+| transformRequestBody  | `Function` | Function to map request body.          |
+| transformResponseBody | `Function` | Function to map response body.         |
+
 ## Usage
 
 ```js
