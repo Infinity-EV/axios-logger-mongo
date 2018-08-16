@@ -49,7 +49,11 @@ To transform your request, response before saving to database, use `transformReq
 useMongoLogger(axios, {
   mongoURL: 'mongodb://localhost:27017/',
   collectionName: 'logs',
-  transformRequestBody: (body, { request, config } => { /* */ }),
-  transformResponseBody: (body, { response, config } => { /* */ }),
+  transformRequestBody: (body, { request, config }) => {
+    /* */
+  },
+  transformResponseBody: (body, { response, config }) => {
+    /* */
+  },
 });
 ```
