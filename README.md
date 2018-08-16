@@ -42,3 +42,14 @@ useMongoLogger(axios, {
   allInstances: true,
 });
 ```
+
+To transform your request, response before saving to database, use `transformRequestBody` or `transformResponseBody`:
+
+```js
+useMongoLogger(axios, {
+  mongoURL: 'mongodb://localhost:27017/',
+  collectionName: 'logs',
+  transformRequestBody: (body, { request, config } => { /* */ }),
+  transformResponseBody: (body, { response, config } => { /* */ }),
+});
+```
