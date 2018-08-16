@@ -42,7 +42,10 @@ function createRequestObject({
   }
 
   if (requestBody && typeof transformRequestBody === 'function') {
-    requestBody = transformRequestBody(requestBody);
+    requestBody = transformRequestBody(requestBody, {
+      request: axiosRequest,
+      config: axiosConfig,
+    });
   }
 
   return {
@@ -60,7 +63,10 @@ function createRequestObject({
 function createResponseObject({ axiosResponse, transformResponseBody }) {
   let body = axiosResponse.data || null;
   if (body && typeof transformResponseBody === 'function') {
-    body = transformResponseBody(body);
+    body = transformResponseBody(body, {
+      response: axiosResponse,
+      config: axiosResponse.config,
+    });
   }
   return {
     status: axiosResponse.status,

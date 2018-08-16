@@ -268,6 +268,38 @@ describe('#transformRequestBody', () => {
       b: 2,
     });
   });
+
+  it('should call transformRequestBody with body, { request, config }', async () => {
+    const { collection } = setup();
+
+    nock('https://www.example.com')
+      .post('/path')
+      .reply(200, { x: 'y' });
+
+    const transformRequestBody = jest.fn(body => body);
+
+    useMongoLogger(axios, {
+      mongoURL: 'mongodb://localhost:27017/',
+      collectionName: 'logs',
+      transformRequestBody,
+    });
+
+    await axios.post('https://www.example.com/path', {
+      x: 1,
+      y: 2,
+    });
+
+    expect(transformRequestBody).toBeCalledWith(
+      {
+        x: 1,
+        y: 2,
+      },
+      {
+        request: expect.any(Object),
+        config: expect.any(Object),
+      }
+    );
+  });
 });
 
 describe('#transformResponeBody', () => {
@@ -298,5 +330,34 @@ describe('#transformResponeBody', () => {
       x: 'y',
       b: 2,
     });
+  });
+
+  it('should call transformResponseBody with body, { response, config }', async () => {
+    setup();
+
+    nock('https://www.example.com')
+      .post('/path')
+      .reply(200, { x: 'y' });
+
+    const transformResponseBody = jest.fn(body => body);
+
+    useMongoLogger(axios, {
+      mongoURL: 'mongodb://localhost:27017/',
+      collectionName: 'logs',
+      transformResponseBody,
+    });
+
+    await axios.post('https://www.example.com/path', {
+      x: 1,
+      y: 2,
+    });
+
+    expect(transformResponseBody).toBeCalledWith(
+      { x: 'y' },
+      {
+        response: expect.any(Object),
+        config: expect.any(Object),
+      }
+    );
   });
 });
