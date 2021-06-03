@@ -106,9 +106,9 @@ const logError = (collection, { transformRequestBody } = {}) => (axiosError) => 
   collection.insert({
     method: axiosRequest.method,
     url: axiosConfig.url,
-    status: axiosResponse.status + ' ' +axiosResponse.statusText,
+    status: axiosError.response.status + ' ' +axiosError.response.statusText,
     request,
-    response,
+    response: axiosError.response.data,
     error,
     time: errorTimestamp - requestTimestamp,
   });
