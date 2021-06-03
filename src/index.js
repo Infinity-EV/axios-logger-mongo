@@ -104,6 +104,9 @@ const logError = (collection, { transformRequestBody } = {}) => (axiosError) => 
   const error = axiosError.message;
 
   collection.insert({
+    method: axiosRequest.method,
+    url: axiosConfig.url,
+    status: axiosResponse.status + ' ' +axiosResponse.statusText,
     request,
     response,
     error,
