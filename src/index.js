@@ -86,7 +86,7 @@ const logResponse = (collection, { transformRequestBody, transformResponseBody }
   return axiosResponse;
 };
 
-const logError = (collection, { transformRequestBody } = {}) => (axiosError) => {
+const logError = (collection, { transformRequestBody } = {}) => async (axiosError) => {
   const axiosConfig = axiosError.config;
   const axiosRequest = axiosError.request;
 
@@ -103,7 +103,7 @@ const logError = (collection, { transformRequestBody } = {}) => (axiosError) => 
 
   const error = axiosError.message;
 
-  collection.insert({
+  const inserted = await collection.insert({
     method: axiosRequest.method,
     url: axiosConfig.url,
     status: axiosError.response.status + ' ' +axiosError.response.statusText,
@@ -113,7 +113,11 @@ const logError = (collection, { transformRequestBody } = {}) => (axiosError) => 
     time: errorTimestamp - requestTimestamp,
   });
 
-  return Promise.reject(axiosError);
+
+  axiosError.traceId = inserted._id
+
+  throw axiosError
+  // return Promise.reject(axiosError);
 };
 
 function useMongoLogger(
