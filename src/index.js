@@ -12,7 +12,7 @@ const logRequest = () => (axiosConfig) => {
 };
 
 function createRequestObject({ axiosConfig, axiosRequest, transformRequestBody }) {
-  const url = axiosConfig.url;
+  const url = "" + axiosConfig.url;
   //   const url = new URL(axiosConfig.url);
 
   const requestHeaders = {
@@ -78,7 +78,7 @@ const logResponse = (collection, { transformRequestBody, transformResponseBody }
 
   collection.insert({
     method: axiosRequest.method,
-    url: axiosConfig.baseURL ? axiosConfig.baseURL + axiosConfig.url : axiosConfig.url,
+    url: axiosConfig.baseURL ? "" + axiosConfig.baseURL + axiosConfig.url : "" + axiosConfig.url,
     status: axiosResponse.status + ' ' +axiosResponse.statusText,
     time: responseTimestamp - requestTimestamp + 'ms',
   });
@@ -105,7 +105,7 @@ const logError = (collection, { transformRequestBody } = {}) => async (axiosErro
 
   const inserted = await collection.insert({
     method: axiosRequest.method,
-    url: axiosConfig.baseURL ? axiosConfig.baseURL + axiosConfig.url : axiosConfig.url,
+    url: axiosConfig.baseURL ? "" + axiosConfig.baseURL + axiosConfig.url : "" + axiosConfig.url,
     status: axiosError.response.status + ' ' +axiosError.response.statusText,
     request,
     response: axiosError.response.data,
