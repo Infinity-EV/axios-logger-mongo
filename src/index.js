@@ -77,6 +77,8 @@ const logResponse = (collection, { transformRequestBody, transformResponseBody }
   });
 
   collection.insert({
+    request,
+    response,
     method: axiosRequest.method,
     url: axiosConfig.baseURL ? "" + axiosConfig.baseURL + axiosConfig.url : "" + axiosConfig.url,
     status: axiosResponse.status + ' ' +axiosResponse.statusText,
@@ -122,9 +124,9 @@ const logError = (collection, { transformRequestBody } = {}) => async (axiosErro
 
 function useMongoLogger(
   axios,
-  { mongoURL, collectionName, allInstances = false, transformRequestBody, transformResponseBody },
+  { mongoURL, options, collectionName, allInstances = false, transformRequestBody, transformResponseBody },
 ) {
-  const db = monk(mongoURL);
+  const db = monk(mongoURL, options);
 
   const collection = db.get(collectionName);
 
