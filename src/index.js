@@ -89,10 +89,10 @@ const logResponse = (collection, { transformRequestBody, transformResponseBody }
 };
 
 const logError = (collection, { transformRequestBody } = {}) => async (axiosError) => {
-  const axiosConfig = axiosError.config;
-  const axiosRequest = axiosError.request;
-
-  const { requestTimestamp } = axiosConfig[NAMESPACE];
+  const axiosConfig = axiosError.config || {};
+  const axiosRequest = axiosError.request || {};
+  
+  const { requestTimestamp } = axiosConfig[NAMESPACE] || {};
   const errorTimestamp = Date.now();
 
   const request = createRequestObject({
@@ -101,19 +101,20 @@ const logError = (collection, { transformRequestBody } = {}) => async (axiosErro
     transformRequestBody,
   });
 
-  const response = null;
+  const response = axiosError.response ? axiosError.response.data : null;
 
-  const error = axiosError.message;
+  const error = axiosError.message || "Unknown error";
 
   const inserted = await collection.insert({
-    method: axiosRequest.method,
-    url: axiosConfig.baseURL ? "" + axiosConfig.baseURL + axiosConfig.url : "" + axiosConfig.url,
-    status: axiosError.response.status + ' ' +axiosError.response.statusText,
+    method: axiosRequest.method || "UNKNOWN",
+    url: axiosConfig.baseURL ? axiosConfig.baseURL + axiosConfig.url : axiosConfig.url || "UNKNOWN",
+    status: axiosError.response ? axiosError.response.status + ' ' + axiosError.response.statusText : "No Response",
     request,
-    response: axiosError.response.data,
+    response,
     error,
-    time: errorTimestamp - requestTimestamp,
+    time: requestTimestamp ? errorTimestamp - requestTimestamp : "UNKNOWN",
   });
+};
 
 
   axiosError.traceId = inserted._id
