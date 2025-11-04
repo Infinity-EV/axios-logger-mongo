@@ -116,7 +116,6 @@ const logError = (collection, { transformRequestBody } = {}) => async (axiosErro
     time: requestTimestamp ? errorTimestamp - requestTimestamp : "UNKNOWN",
     timestamp: Date.now(),
   });
-};
 
 
   axiosError.traceId = inserted._id
