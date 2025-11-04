@@ -81,8 +81,9 @@ const logResponse = (collection, { transformRequestBody, transformResponseBody }
     response,
     method: axiosRequest.method,
     url: axiosConfig.baseURL ? "" + axiosConfig.baseURL + axiosConfig.url : "" + axiosConfig.url,
-    status: axiosResponse.status + ' ' +axiosResponse.statusText,
+    status: axiosResponse.status,
     time: responseTimestamp - requestTimestamp + 'ms',
+    timestamp: Date.now(),
   });
 
   return axiosResponse;
@@ -113,6 +114,7 @@ const logError = (collection, { transformRequestBody } = {}) => async (axiosErro
     response,
     error,
     time: requestTimestamp ? errorTimestamp - requestTimestamp : "UNKNOWN",
+    timestamp: Date.now(),
   });
 };
 
